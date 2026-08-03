@@ -1,10 +1,10 @@
-2026-08-03 15:51:47,634 [INFO] Pipeline started
-2026-08-03 15:51:47,634 [INFO] Loaded 3 repo(s) from 'repos.txt'
-2026-08-03 15:51:47,634 [INFO] Step 1: fetching top contributors for 'octocat/Hello-World'
-2026-08-03 15:51:48,102 [INFO] Step 1: 'octocat/Hello-World' succeeded — top contributors: Spaceghost, octocat, Cameron423698
-2026-08-03 15:51:48,103 [INFO] Step 1: fetching top contributors for 'octocat/Spoon-Knife'
-2026-08-03 15:51:48,469 [INFO] Step 1: 'octocat/Spoon-Knife' succeeded — top contributors: octocat
-2026-08-03 15:51:48,469 [INFO] Step 1: fetching top contributors for 'octocat/this-repo-does-not-exist-xyz123'
-2026-08-03 15:51:48,763 [ERROR] Step 1: 'octocat/this-repo-does-not-exist-xyz123' failed — Repository 'octocat/this-repo-does-not-exist-xyz123' not found
-2026-08-03 15:51:48,765 [INFO] Step 2: report written to 'report.md'
-2026-08-03 15:51:48,765 [INFO] Pipeline finished: 2/3 repo(s) succeeded
+2026-08-04 00:25:50,226 [INFO] === Pipeline run started ===
+2026-08-04 00:25:50,226 [INFO] Step 1: reading repo list from 'repos.txt'
+2026-08-04 00:25:50,226 [INFO] Step 1: read 3 repos
+2026-08-04 00:25:50,226 [INFO] Step 2: fetching contributors for 3 repos
+2026-08-04 00:25:50,892 [INFO] Step 2: 'pallets/flask' -> 3 contributors
+2026-08-04 00:25:51,586 [INFO] Step 2: 'psf/requests' -> 3 contributors
+2026-08-04 00:25:52,121 [WARNING] Step 2: 'this-repo/does-not-exist' failed: Repo 'this-repo/does-not-exist' not found
+2026-08-04 00:25:52,122 [INFO] Step 3: writing report to 'report.md'
+2026-08-04 00:25:52,122 [INFO] Step 3: report written (339 bytes)
+2026-08-04 00:25:52,122 [INFO] === Pipeline run finished ===

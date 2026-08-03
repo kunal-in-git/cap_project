@@ -1,55 +1,82 @@
-"""Orchestrator: chains Step 1 (fetch_contributors) -> Step 2
-(generate_report) and sets up logging for the whole run.
-
-    repos.txt --[Step 1: fetch_all]--> results --[Step 2: generate_markdown_report]--> report.md
-"""
-
-import datetime
 import logging
-import sys
 
-from fetch_contributors import fetch_all, read_repo_list
-from generate_report import generate_markdown_report, write_report
+from fetch_contributors import RateLimitError, RepoNotFoundError, fetch_contributors
+from generate_report import generate_report
 
-REPOS_FILE = "repos.txt"
-REPORT_FILE = "report.md"
-LOG_FILE = "pipeline.log"
-
-
-def setup_logger() -> logging.Logger:
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(logging.INFO)
-    logger.handlers.clear()
-
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-
-    file_handler = logging.FileHandler(LOG_FILE)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    return logger
+logging.basicConfig(
+    filename="pipeline.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
-def run() -> None:
-    logger = setup_logger()
-    logger.info("Pipeline started")
+def read_repo_list(path):
+    """Read repo names (one per line) from a text file.
 
-    repos = read_repo_list(REPOS_FILE)
-    logger.info("Loaded %d repo(s) from '%s'", len(repos), REPOS_FILE)
+    Args:
+        path: path to the input file.
 
-    results = fetch_all(repos, logger)
+    Returns:
+        List of "owner/name" strings.
+    """
+    logger.info("Step 1: reading repo list from '%s'", path)
+    with open(path, encoding="utf-8") as f:
+        repos = [line.strip() for line in f if line.strip()]
+    logger.info("Step 1: read %d repos", len(repos))
+    return repos
 
-    generated_at = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
-    markdown = generate_markdown_report(results, generated_at)
-    write_report(markdown, REPORT_FILE, logger)
 
-    succeeded = sum(1 for r in results if r["error"] is None)
-    logger.info("Pipeline finished: %d/%d repo(s) succeeded", succeeded, len(results))
+def fetch_all_contributors(repos):
+    """Fetch top contributors for each repo, tolerating per-repo failures.
+
+    Args:
+        repos: list of "owner/name" strings.
+
+    Returns:
+        dict mapping repo -> list of contributor dicts, or an error
+        message string if that repo's fetch failed.
+    """
+    logger.info("Step 2: fetching contributors for %d repos", len(repos))
+    results = {}
+    for repo in repos:
+        try:
+            contributors = fetch_contributors(repo)
+            results[repo] = contributors
+            logger.info("Step 2: '%s' -> %d contributors", repo, len(contributors))
+        except RepoNotFoundError as exc:
+            results[repo] = str(exc)
+            logger.warning("Step 2: '%s' failed: %s", repo, exc)
+        except RateLimitError as exc:
+            results[repo] = str(exc)
+            logger.error("Step 2: '%s' failed: %s", repo, exc)
+            logger.error("Step 2: stopping early, rate limit hit")
+            break
+    return results
+
+
+def write_report(report, path):
+    """Write the markdown report to a file.
+
+    Args:
+        report: markdown string.
+        path: output file path.
+    """
+    logger.info("Step 3: writing report to '%s'", path)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(report)
+    logger.info("Step 3: report written (%d bytes)", len(report))
+
+
+def run_pipeline(repos_path, report_path):
+    logger.info("=== Pipeline run started ===")
+    repos = read_repo_list(repos_path)
+    results = fetch_all_contributors(repos)
+    report = generate_report(results)
+    write_report(report, report_path)
+    logger.info("=== Pipeline run finished ===")
+    return report
 
 
 if __name__ == "__main__":
-    run()
+    run_pipeline("repos.txt", "report.md")
