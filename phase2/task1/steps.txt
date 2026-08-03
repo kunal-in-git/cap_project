@@ -1,0 +1,35 @@
+what are the functions should csv data clearner should have implement this in a file for above project 
+
+
+You prompt again, asking me to add type hints, docstrings, and error handling to what was generated. Save that prompt + a summary of what changed. do this 
+
+
+
+You prompt me to write ≥5 pytest tests covering normal + edge cases.
+
+5.  Run the tests (pytest) and fix any failures — document which fixes were done by Claude vs manually
+
+all went passed 
+
+(venv) kunalkumawat@192 task1 % pytest tests/ -v
+
+=================================== test session starts ===================================
+platform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/kunalkumawat/Desktop/cap_assisment/phase2/task1/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/kunalkumawat/Desktop/cap_assisment/phase2/task1
+collected 11 items                                                                        
+
+tests/test_csv_cleaner.py::test_normalize_headers PASSED                            [  9%]
+tests/test_csv_cleaner.py::test_strip_whitespace_values PASSED                      [ 18%]
+tests/test_csv_cleaner.py::test_drop_empty_rows PASSED                              [ 27%]
+tests/test_csv_cleaner.py::test_drop_duplicate_rows PASSED                          [ 36%]
+tests/test_csv_cleaner.py::test_fill_missing PASSED                                 [ 45%]
+tests/test_csv_cleaner.py::test_coerce_column_types_success PASSED                  [ 54%]
+tests/test_csv_cleaner.py::test_coerce_column_types_missing_column_raises_keyerror PASSED [ 63%]
+tests/test_csv_cleaner.py::test_coerce_column_types_bad_value_raises_valueerror PASSED [ 72%]
+tests/test_csv_cleaner.py::test_write_csv_empty_rows PASSED                         [ 81%]
+tests/test_csv_cleaner.py::test_read_csv_missing_file_raises_filenotfounderror PASSED [ 90%]
+tests/test_csv_cleaner.py::test_clean_csv_end_to_end PASSED                         [100%]
+
+=================================== 11 passed in 0.02s ====================================
+(venv) kunalkumawat@192 task1 % 
