@@ -11,7 +11,7 @@ const PLANS = [
     planName: "Pro",
     price: 29,
     features: ["Unlimited projects", "Priority support", "50 GB storage", "Team collaboration"],
-    highlighted: true,
+    // highlighted: true,
   },
   {
     planName: "Enterprise",
