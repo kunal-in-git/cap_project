@@ -1,0 +1,10 @@
+2026-08-03 15:51:47,634 [INFO] Pipeline started
+2026-08-03 15:51:47,634 [INFO] Loaded 3 repo(s) from 'repos.txt'
+2026-08-03 15:51:47,634 [INFO] Step 1: fetching top contributors for 'octocat/Hello-World'
+2026-08-03 15:51:48,102 [INFO] Step 1: 'octocat/Hello-World' succeeded — top contributors: Spaceghost, octocat, Cameron423698
+2026-08-03 15:51:48,103 [INFO] Step 1: fetching top contributors for 'octocat/Spoon-Knife'
+2026-08-03 15:51:48,469 [INFO] Step 1: 'octocat/Spoon-Knife' succeeded — top contributors: octocat
+2026-08-03 15:51:48,469 [INFO] Step 1: fetching top contributors for 'octocat/this-repo-does-not-exist-xyz123'
+2026-08-03 15:51:48,763 [ERROR] Step 1: 'octocat/this-repo-does-not-exist-xyz123' failed — Repository 'octocat/this-repo-does-not-exist-xyz123' not found
+2026-08-03 15:51:48,765 [INFO] Step 2: report written to 'report.md'
+2026-08-03 15:51:48,765 [INFO] Pipeline finished: 2/3 repo(s) succeeded
