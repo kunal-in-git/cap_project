@@ -1,0 +1,34 @@
+"I'm building a Task Manager app (FastAPI backend + React frontend). I want to define the 'Add Task' feature — a user creates a new task with a title, optional description, and default status. Write a short PRD covering: problem statement, user story, functional requirements, data model, API changes, and acceptance criteria."
+
+
+
+
+PRD: Add Task
+
+Problem statement
+Users need a way to capture new work items in the Task Manager so nothing gets forgotten. Without a creation flow, the app has no way to populate the task list.
+
+User story
+As a user, I want to add a new task with a title and optional description so I can track it in my task list.
+
+Functional requirements
+
+User can submit a title (required) and description (optional) to create a task.
+New tasks default to todo status.
+A unique ID and creation timestamp are assigned automatically.
+The task appears immediately in the task list after creation.
+Empty/blank titles are rejected.
+Data model
+
+Task: id (UUID, auto-generated), title (str, required), description (str, default ""), status (enum: todo/in-progress/done, default todo), created_at (datetime, auto-generated).
+TaskCreate: title (str, required), description (str, optional), status (optional, default todo) — the input shape, without server-generated fields.
+API changes
+
+POST /tasks — accepts a TaskCreate JSON body, returns the created Task with status code 201.
+Validation: reject requests missing title (422 error, handled automatically by Pydantic).
+Acceptance criteria
+
+POST /tasks with a valid title returns 201 and the created task, including a generated id and created_at.
+POST /tasks with a missing/empty title returns a 422 validation error.
+Newly created task appears in GET /tasks immediately after creation.
+Frontend form clears and the task list refreshes after successful creation.

@@ -1,5 +1,18 @@
-# Deployment artifact for Task D — would live at .github/workflows/ci.yml
-# to run on every push touching the backend, then build the image.
+Since "Add Task" lives inside the same task1/backend app as every other endpoint, there's no separate deployment unit for it — the Dockerfile and CI config package the whole FastAPI service, and the POST /tasks route just comes along for free.
+
+Dockerfile:
+
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CI/CD config (.github/workflows/ci.yml):
+
+
 name: Backend CI
 
 on:

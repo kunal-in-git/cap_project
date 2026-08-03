@@ -1,0 +1,35 @@
+"For the 'Add Task' feature in my Task Manager (FastAPI + React), sketch the data model and the component structure. Show the Pydantic models involved and a simple component tree for the frontend form that creates a task."
+
+
+Data model sketch
+
+
+TaskCreate (input, from frontend form)
+├── title: str (required)
+├── description: str = ""
+└── status: TaskStatus = "todo"
+
+Task (stored + returned)
+├── id: UUID (auto-generated)
+├── title: str
+├── description: str
+├── status: TaskStatus (enum: todo | in-progress | done)
+└── created_at: datetime (auto-generated)
+TaskCreate is what the client sends; Task is the full record the server stores and returns — the server fills in id and created_at on top of what the client provided.
+
+Component structure sketch (frontend)
+
+
+App
+├── TaskForm            → owns form state (title, description)
+│                          calls onCreate(task) on submit
+├── TaskList             → receives tasks[] as props
+│   └── TaskItem (×N)    → renders one task, triggers
+│                          onUpdateStatus / onDelete
+Data flow for "Add Task"
+
+TaskForm collects title + description from local state.
+On submit, calls onCreate({ title, description }) passed down from App.
+App.handleCreate calls createTask() in api.js → POST /tasks.
+Backend validates against TaskCreate, builds a full Task, stores it, returns it.
+App calls loadTasks() to refresh the list → TaskList re-renders with the new task included.
