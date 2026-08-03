@@ -1,0 +1,1 @@
+My workflow typically involves using Claude for programming and implementation tasks, while I use Copilot for understanding code, generating explanations, and helping with written communication.

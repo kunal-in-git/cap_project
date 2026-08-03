@@ -1,0 +1,33 @@
+COPILOT------
+
+SELECT column1, column2, COUNT(*) AS duplicate_count
+FROM table_name
+GROUP BY column1, column2
+HAVING COUNT(*) > 1;
+
+
+
+CLAUDE------
+
+
+SELECT email, phone, COUNT(*) AS duplicate_count
+FROM users
+GROUP BY email, phone
+HAVING COUNT(*) > 1;
+
+This groups rows by the two columns you care about, then keeps only the groups where more than one row shares those same values — those are your duplicates.
+
+If you also want the full duplicate rows themselves (not just the column values + count), pair it with a JOIN back to the table:
+
+
+SELECT u.*
+FROM users u
+JOIN (
+    SELECT email, phone
+    FROM users
+    GROUP BY email, phone
+    HAVING COUNT(*) > 1
+) dups ON u.email = dups.email AND u.phone = dups.phone
+ORDER BY u.email, u.phone;
+Swap users, email, phone for your actual table/column names.
+
