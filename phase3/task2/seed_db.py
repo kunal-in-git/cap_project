@@ -1,52 +1,54 @@
-"""Create and seed library.db — the SQLite data source for the MCP server."""
+"""Create and seed library.db with sample book data."""
 
 import sqlite3
 
 DB_PATH = "library.db"
 
 BOOKS = [
+    ("The Fellowship of the Ring", "J.R.R. Tolkien", "Fantasy", 1954),
+    ("The Two Towers", "J.R.R. Tolkien", "Fantasy", 1954),
+    ("The Return of the King", "J.R.R. Tolkien", "Fantasy", 1955),
+    ("The Hobbit", "J.R.R. Tolkien", "Fantasy", 1937),
     ("Dune", "Frank Herbert", "Science Fiction", 1965),
     ("Foundation", "Isaac Asimov", "Science Fiction", 1951),
     ("Neuromancer", "William Gibson", "Science Fiction", 1984),
-    ("The Left Hand of Darkness", "Ursula K. Le Guin", "Science Fiction", 1969),
-    ("The Hobbit", "J.R.R. Tolkien", "Fantasy", 1937),
-    ("A Game of Thrones", "George R. R. Martin", "Fantasy", 1996),
-    ("The Name of the Wind", "Patrick Rothfuss", "Fantasy", 2007),
-    ("Mistborn", "Brandon Sanderson", "Fantasy", 2006),
-    ("Gone Girl", "Gillian Flynn", "Mystery", 2012),
-    ("The Girl with the Dragon Tattoo", "Stieg Larsson", "Mystery", 2005),
-    ("And Then There Were None", "Agatha Christie", "Mystery", 1939),
-    ("Sapiens", "Yuval Noah Harari", "Non-Fiction", 2011),
-    ("Educated", "Tara Westover", "Non-Fiction", 2018),
-    ("The Immortal Life of Henrietta Lacks", "Rebecca Skloot", "Non-Fiction", 2010),
-    ("Pride and Prejudice", "Jane Austen", "Classic", 1813),
-    ("Nineteen Eighty-Four", "George Orwell", "Classic", 1949),
-    ("The Great Gatsby", "F. Scott Fitzgerald", "Classic", 1925),
+    ("1984", "George Orwell", "Dystopian", 1949),
+    ("Animal Farm", "George Orwell", "Satire", 1945),
+    ("Brave New World", "Aldous Huxley", "Dystopian", 1932),
+    ("Pride and Prejudice", "Jane Austen", "Romance", 1813),
+    ("Sense and Sensibility", "Jane Austen", "Romance", 1811),
+    ("Moby-Dick", "Herman Melville", "Adventure", 1851),
+    ("Crime and Punishment", "Fyodor Dostoevsky", "Classic", 1866),
+    ("The Brothers Karamazov", "Fyodor Dostoevsky", "Classic", 1880),
 ]
 
 
-def seed() -> None:
+def main():
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("DROP TABLE IF EXISTS books")
-    conn.execute(
+    cur = conn.cursor()
+
+    cur.execute("DROP TABLE IF EXISTS books")
+    cur.execute(
         """
         CREATE TABLE books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             author TEXT NOT NULL,
-            genre TEXT NOT NULL,
+            category TEXT NOT NULL,
             published_year INTEGER NOT NULL
         )
         """
     )
-    conn.executemany(
-        "INSERT INTO books (title, author, genre, published_year) VALUES (?, ?, ?, ?)",
+
+    cur.executemany(
+        "INSERT INTO books (title, author, category, published_year) VALUES (?, ?, ?, ?)",
         BOOKS,
     )
+
     conn.commit()
     conn.close()
     print(f"Seeded {len(BOOKS)} books into {DB_PATH}")
 
 
 if __name__ == "__main__":
-    seed()
+    main()

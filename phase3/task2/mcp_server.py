@@ -1,20 +1,16 @@
-"""MCP server exposing 2 tools over a local SQLite book library.
-
-Tool 1: search_books  — keyword search over title/author/genre.
-Tool 2: library_summary — overview stats (count, genres, year range).
-"""
+"""MCP server exposing tools over a local SQLite library database."""
 
 import sqlite3
 from pathlib import Path
 
-from mcp.server.mcpserver import MCPServer
+from mcp.server import MCPServer
 
 DB_PATH = Path(__file__).resolve().parent / "library.db"
 
-mcp = MCPServer("library")
+mcp = MCPServer("library-server")
 
 
-def _connect() -> sqlite3.Connection:
+def _get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
@@ -22,53 +18,55 @@ def _connect() -> sqlite3.Connection:
 
 @mcp.tool()
 def search_books(query: str) -> list[dict]:
-    """Search the book library by keyword.
-
-    Matches against title, author, and genre (case-insensitive,
-    substring match). Returns an empty list if nothing matches.
+    """Search books by title or author keyword.
 
     Args:
-        query: a keyword to search for, e.g. an author's name, a
-            word from a title, or a genre.
+        query: A keyword to match against book titles or author names.
+
+    Returns:
+        A list of matching books, each with id, title, author, category,
+        and published_year.
     """
-    conn = _connect()
+    conn = _get_connection()
     try:
-        pattern = f"%{query}%"
-        rows = conn.execute(
-            """
-            SELECT id, title, author, genre, published_year
-            FROM books
-            WHERE title LIKE ? OR author LIKE ? OR genre LIKE ?
-            ORDER BY published_year
-            """,
-            (pattern, pattern, pattern),
-        ).fetchall()
-        return [dict(row) for row in rows]
+        cursor = conn.execute(
+            "SELECT id, title, author, category, published_year "
+            "FROM books WHERE title LIKE ? OR author LIKE ?",
+            (f"%{query}%", f"%{query}%"),
+        )
+        return [dict(row) for row in cursor.fetchall()]
     finally:
         conn.close()
 
 
 @mcp.tool()
-def library_summary() -> dict:
-    """Return overview statistics about the book library.
+def library_stats() -> dict:
+    """Get an overview of the library data: total records, category
+    breakdown, and the range of publication years.
 
-    Includes the total number of books, a count of books per genre,
-    and the earliest/latest publication years in the collection.
+    Returns:
+        A summary object with total_records, categories (a mapping of
+        category name to count), and earliest_year/latest_year.
     """
-    conn = _connect()
+    conn = _get_connection()
     try:
-        total = conn.execute("SELECT COUNT(*) AS n FROM books").fetchone()["n"]
-        genre_rows = conn.execute(
-            "SELECT genre, COUNT(*) AS n FROM books GROUP BY genre ORDER BY n DESC"
+        total_records = conn.execute("SELECT COUNT(*) FROM books").fetchone()[0]
+
+        category_rows = conn.execute(
+            "SELECT category, COUNT(*) AS count FROM books GROUP BY category"
         ).fetchall()
+        categories = {row["category"]: row["count"] for row in category_rows}
+
         year_row = conn.execute(
-            "SELECT MIN(published_year) AS earliest, MAX(published_year) AS latest FROM books"
+            "SELECT MIN(published_year), MAX(published_year) FROM books"
         ).fetchone()
+        earliest_year, latest_year = year_row[0], year_row[1]
+
         return {
-            "total_books": total,
-            "genres": {row["genre"]: row["n"] for row in genre_rows},
-            "earliest_year": year_row["earliest"],
-            "latest_year": year_row["latest"],
+            "total_records": total_records,
+            "categories": categories,
+            "earliest_year": earliest_year,
+            "latest_year": latest_year,
         }
     finally:
         conn.close()
