@@ -1,0 +1,36 @@
+# Deployment artifact for Task D — would live at .github/workflows/ci.yml
+# to run on every push touching the backend, then build the image.
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "phase1/task1/backend/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        working-directory: phase1/task1/backend
+        run: |
+          pip install -r requirements.txt
+          pip install pytest httpx
+      - name: Run tests
+        working-directory: phase1/task1/backend
+        run: pytest
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: |
+          docker build -f phase1/task4/artifacts/Dockerfile \
+            -t task-manager-api:${{ github.sha }} \
+            phase1/task1/backend
